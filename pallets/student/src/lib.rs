@@ -61,11 +61,20 @@ pub mod pallet {
 			// TODO
 			// check student is existed (return StudentExisted) or not
 			// Each student can only create information once
-
+			if let Some(_) = Students::<T>::get(&student){
+				return Err(Error::<T>::StudentExisted.into())
+			}
 			// TODO
 			// Define new student
 			// Update on chain storage
-
+			else{
+				let new_student = Student{
+					name,
+					age,
+					grade
+				};
+				<Students<T>>::insert(&student, new_student)
+			}
 			Self::deposit_event(Event::CreatedStudent { account: student });
 
 			Ok(())
@@ -77,16 +86,25 @@ pub mod pallet {
 			let student = ensure_signed(origin)?;
 
 			// TODO
-			// check student is existing or not (return NotFoundStudent)
-
-			// TODO
 			// Get student info
+			let updated_student = match Students::<T>::get(&student){
+				// TODO
+				// Mutate student info
+				Some(mut s) => {
+					s.age = age;
+					s.grade = grade;
+					s
 
-			// TODO
-			// Mutate student info
+				},
+				// TODO
+				// check student is existing or not (return NotFoundStudent)
+				None => return Err(Error::<T>::NotFoundStudent.into())
+			};
+
 
 			// TODO
 			// Update modified info to onchain storage
+			Students::<T>::insert(&student, updated_student);
 
 			Self::deposit_event(Event::UpdatedStudent { account: student });
 			Ok(())
